@@ -10,9 +10,9 @@ const add = (sum, num) => sum + num;
 
 // Part 1
 (() => {
-  const isCharAdjacent = (char) => char && char !== ".";
+  const isSymbol = (char) => char && char !== ".";
 
-  const firstTaskResult = preparedData
+  const firstPartResult = preparedData
     .reduce((result, line, lineIndex, lines) => {
       const regexp = /\d+/g;
       let match;
@@ -29,16 +29,13 @@ const add = (sum, num) => sum + num;
 
         let isAdjacent = false;
 
-        if (
-          isCharAdjacent(line[startIndex]) ||
-          isCharAdjacent(line[endIndex])
-        ) {
+        if (isSymbol(line[startIndex]) || isSymbol(line[endIndex])) {
           isAdjacent = true;
         }
 
         [...Array(endIndex - startIndex + 1).keys()].forEach((index) => {
           const check = (char, charIndex) =>
-            startIndex + index === charIndex && isCharAdjacent(char);
+            startIndex + index === charIndex && isSymbol(char);
 
           if (
             (prevLine && [...prevLine].some(check)) ||
@@ -57,12 +54,78 @@ const add = (sum, num) => sum + num;
     }, [])
     .reduce(add, 0);
 
-  console.log("Part 1: ", firstTaskResult);
+  console.log("Part 1: ", firstPartResult);
 })();
 
 // Part 2
 (() => {
-  const secondTaskResult = 0;
+  const isStar = (char) => char && char === "*";
+  const getAdjacentId = (step, position) => `${step}|${position}`;
 
-  console.log("Part 2: ", secondTaskResult);
+  const mappedData = preparedData.reduce((result, line, lineIndex, lines) => {
+    const regexp = /\d+/g;
+    let match;
+
+    while ((match = regexp.exec(line))) {
+      const target = match[0];
+      const number = Number(target);
+
+      const startIndex = match.index - 1;
+      const endIndex = match.index + target.length;
+
+      const prevLineIndex = lineIndex - 1;
+      const nextLineIndex = lineIndex + 1;
+
+      const prevLine = lines[prevLineIndex];
+      const nextLine = lines[nextLineIndex];
+
+      let adjacentId = null;
+
+      if (isStar(line[startIndex])) {
+        adjacentId = getAdjacentId(lineIndex, startIndex);
+      }
+
+      if (isStar(line[endIndex])) {
+        adjacentId = getAdjacentId(lineIndex, endIndex);
+      }
+
+      [...Array(endIndex - startIndex + 1).keys()].forEach((i) => {
+        const index = startIndex + i;
+
+        const check = (char, charIndex) => index === charIndex && isStar(char);
+
+        if (prevLine && [...prevLine].some(check)) {
+          adjacentId = getAdjacentId(prevLineIndex, index);
+        }
+
+        if (nextLine && [...nextLine].some(check)) {
+          adjacentId = getAdjacentId(nextLineIndex, index);
+        }
+      });
+
+      if (adjacentId) {
+        if (result[adjacentId]) {
+          result[adjacentId].push(number);
+        } else {
+          result[adjacentId] = [number];
+        }
+      }
+    }
+
+    return result;
+  }, {});
+
+  const secondPartResult = Object.values(mappedData)
+    .reduce((result, numbers) => {
+      if (numbers.length > 1) {
+        const produce = numbers.reduce((result, num) => result * num, 1);
+
+        result.push(produce);
+      }
+
+      return result;
+    }, [])
+    .reduce(add, 0);
+
+  console.log("Part 2: ", secondPartResult);
 })();
