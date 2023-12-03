@@ -60,9 +60,11 @@ const getCodeFromNumbers = (numbers) =>
 // Part 2
 (() => {
   const secondTaskResult = preparedData.reduce((sum, line) => {
-    while (Object.keys(NUMBERS).some((num) => line.includes(num))) {
-      line = line.replace(
-        new RegExp(`(${Object.keys(NUMBERS).join("|")})`),
+    const textNumbers = Object.keys(NUMBERS);
+
+    while (textNumbers.some((num) => line.includes(num))) {
+      line.replace(
+        new RegExp(`(${textNumbers.join("|")})`),
         (match) => `${NUMBERS[match]}${match.substring(1)}`
       );
     }

@@ -13,11 +13,15 @@ if (!year || !day) {
 } else {
   const exec = require("child_process").exec;
 
-  exec(`node ./src/${year}/${day}/index.js`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(error);
-    } else {
-      console.log(stdout || stderr);
+  exec(
+    `node ./src/${year}/${day}/index.js`,
+    { maxBuffer: 1024 * 500 },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log(stdout || stderr);
+      }
     }
-  });
+  );
 }
